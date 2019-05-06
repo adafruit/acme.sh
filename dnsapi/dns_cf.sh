@@ -30,9 +30,9 @@ dns_cf_add() {
     return 1
   fi
 
-  #save the api key and email to the account conf file.
-  _saveaccountconf_mutable CF_Key "$CF_Key"
-  _saveaccountconf_mutable CF_Email "$CF_Email"
+  # (don't) save the api key and email to the account conf file.
+  #_saveaccountconf_mutable CF_Key "$CF_Key"
+  #_saveaccountconf_mutable CF_Email "$CF_Email"
 
   _debug "First detect the root zone"
   if ! _get_root "$fulldomain"; then
