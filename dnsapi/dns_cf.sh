@@ -18,10 +18,14 @@ dns_cf_add() {
   txtvalue=$2
 
   CF_Token="${CF_Token:-$(_readaccountconf_mutable CF_Token)}"
+  CF_Zone_ID="${CF_Zone_ID:-$(_readaccountconf_mutable CF_Zone_ID)}"
   CF_Account_ID="${CF_Account_ID:-$(_readaccountconf_mutable CF_Account_ID)}"
   CF_Key="${CF_Key:-$(_readaccountconf_mutable CF_Key)}"
   CF_Email="${CF_Email:-$(_readaccountconf_mutable CF_Email)}"
 
+  if [ "$CF_Zone_ID" ]; then
+    _saveaccountconf_mutable CF_Zone_ID "$CF_Zone_ID"
+  fi
   if [ "$CF_Token" ]; then
     _saveaccountconf_mutable CF_Token "$CF_Token"
     _saveaccountconf_mutable CF_Account_ID "$CF_Account_ID"
@@ -138,6 +142,10 @@ dns_cf_rm() {
 # _domain=domain.com
 # _domain_id=sdjkglgdfewsdfg
 _get_root() {
+
+  #read zone ID, and if we've got it then we don't have to to through zone listing step. 
+  CF_Zone_ID="${CF_Zone_ID:-$(_readaccountconf_mutable CF_Zone_ID)}"
+
   domain=$1
   i=1
   p=1
@@ -148,8 +156,13 @@ _get_root() {
       #not valid
       return 1
     fi
-
-    if [ "$CF_Account_ID" ]; then
+    
+    if [ "$CF_Zone_ID" ]; then
+      _domain_id=$CF_Zone_ID
+      _sub_domain=$(printf "%s" "$domain" | cut -d . -f 1-$p)
+      _domain=$h
+      return 0
+    elif [ "$CF_Account_ID" ]; then
       if ! _cf_rest GET "zones?name=$h&account.id=$CF_Account_ID"; then
         return 1
       fi
