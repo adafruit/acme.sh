@@ -156,7 +156,7 @@ _get_root() {
       #not valid
       return 1
     fi
-    
+
     if [ "$CF_Zone_ID" ]; then
       _domain_id=$CF_Zone_ID
       _sub_domain=$(printf "%s" "$domain" | cut -d . -f 1-$p)
